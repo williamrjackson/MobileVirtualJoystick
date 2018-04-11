@@ -39,7 +39,7 @@ public class TouchAxisCtrl : MonoBehaviour {
         if (m_CapturedTouch < 0)
         {
             if ((!spawnOnTouch && Input.GetMouseButtonDown(0) && GetPointDistance(m_JoyCamera.ScreenToWorldPoint(Input.mousePosition)) < GetScaledParimeter(touchArea))
-                || ( spawnOnTouch && Input.GetMouseButtonDown(0)))
+                || (spawnOnTouch && Input.GetMouseButtonDown(0)))
             {
                 CaptureTouch(0, m_JoyCamera.ScreenToWorldPoint(Input.mousePosition));
             }
@@ -60,10 +60,10 @@ public class TouchAxisCtrl : MonoBehaviour {
             for (int i = 0; i < Input.touchCount; ++i)
             {
                 if ((!spawnOnTouch && (Input.GetTouch(i).phase == TouchPhase.Began) && 
-                    (Vector2.Distance(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(i).position), transform.position) < GetScaledParimeter(touchParimeter))) 
+                    (GetPointDistance(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(i).position)) < GetScaledParimeter(touchArea))) 
                     || (spawnOnTouch && Input.GetTouch(i).phase == TouchPhase.Began))
                 {
-                    CaptureTouch(i, m_JoyCamera.ScreenToViewportPoint(Input.GetTouch(i).position));
+                    CaptureTouch(i, m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(i).position));
                 }
             }
         }
@@ -75,7 +75,7 @@ public class TouchAxisCtrl : MonoBehaviour {
             }
             else
             {
-                HandleValidTouch(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(m_CapturedTouch).position);
+                HandleValidTouch(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(m_CapturedTouch).position));
             }
         }
 #endif 
@@ -141,9 +141,13 @@ public class TouchAxisCtrl : MonoBehaviour {
     public float GetAxis(string vertOrHorizontal)
     {
         if (vertOrHorizontal == "Horizontal")
-            return m_Axis.x; 
+            return m_Axis.x;
         else if (vertOrHorizontal == "Vertical")
             return m_Axis.y;
+        if (vertOrHorizontal == "InverseHorizontal")
+            return Remap(m_Axis.x, -1, 1, 1, -1);
+        else if (vertOrHorizontal == "InverseVertical")
+            return Remap(m_Axis.y, -1, 1, 1, -1);
         else
             return 0f;
     }
