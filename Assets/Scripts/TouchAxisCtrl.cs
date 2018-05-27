@@ -11,8 +11,6 @@ public class TouchAxisCtrl : MonoBehaviour {
     int m_CapturedTouch = -1;
     Vector2 m_Axis;
     Vector3 m_InitialScale;
-    //Camera m_MainCamera;
-    //Camera m_JoyCamera;
 	
     // Use this for initialization
 	void Start () {
@@ -35,10 +33,10 @@ public class TouchAxisCtrl : MonoBehaviour {
             for (int i = 0; i < Input.touchCount; ++i)
             {
                 if ((!spawnOnTouch && (Input.GetTouch(i).phase == TouchPhase.Began) && 
-                    (GetPointDistance(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(i).position)) < GetScaledParimeter(touchArea))) 
+                    (GetPointDistance(Input.GetTouch(i).position) < GetScaledParimeter(touchArea))) 
                     || (spawnOnTouch && Input.GetTouch(i).phase == TouchPhase.Began))
                 {
-                    CaptureTouch(i, m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(i).position));
+                    CaptureTouch(i, Input.GetTouch(i).position);
                 }
             }
         }
@@ -50,7 +48,7 @@ public class TouchAxisCtrl : MonoBehaviour {
             }
             else
             {
-                HandleValidTouch(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(m_CapturedTouch).position));
+                HandleValidTouch(Input.GetTouch(m_CapturedTouch).position);
             }
         }
 #else
@@ -126,6 +124,11 @@ public class TouchAxisCtrl : MonoBehaviour {
     }
 
     // __ PUBLIC __ //
+    public bool IsTouching()
+    {
+        return (m_CapturedTouch > -1);
+    }
+
     public Vector2 GetAxis()
     {
         return m_Axis;
