@@ -21,6 +21,7 @@ public class TouchAxisCtrl : MonoBehaviour
     Vector3 m_InitialScale;
     Vector2 velRef = Vector2.zero;
     private bool swipeRegistered;
+    private SwipableObject swipable = null;
 
     // Use this for initialization
     void Start()
@@ -97,24 +98,30 @@ public class TouchAxisCtrl : MonoBehaviour
         m_Axis = node.localPosition.normalized * Remap(GetPointDistance(currentPos), 0, GetScaledParimeter(touchArea), 0, 1);
         transform.position = Vector2.SmoothDamp(transform.position, currentPos, ref velRef, chase, 1000, Time.deltaTime);
 
-        if (OnSwipe != null && m_Axis.sqrMagnitude > .6f && !swipeRegistered)
+        if ((OnSwipe != null || swipable != null) && m_Axis.sqrMagnitude > .6f && !swipeRegistered)
         {
+            Direction swipeDir = Direction.Up;
             swipeRegistered = true;
             if (m_Axis.x < -.6f)
             {
-                OnSwipe(Direction.Left);
+                swipeDir = (Direction.Left);
             }
             else if (m_Axis.x > .6f)
             {
-                OnSwipe(Direction.Right);
+                swipeDir = (Direction.Right);
             }
             else if (m_Axis.y < -.6f)
             {
-                OnSwipe(Direction.Down);
+                swipeDir = (Direction.Down);
             }
-            else
+
+            if (swipable != null)
             {
-                OnSwipe(Direction.Up);
+                swipable.Swiped(swipeDir);
+            }
+            else if (OnSwipe != null)
+            {
+                OnSwipe(swipeDir);
             }
         }
     }
@@ -125,9 +132,22 @@ public class TouchAxisCtrl : MonoBehaviour
         {
             transform.position = touchPos;
             transform.localScale = m_InitialScale;
+            RaycastHit hit;
+            RaycastHit2D hit2d;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (hit2d = Physics2D.Raycast(ray.origin, ray.direction))
+            {
+                swipable = hit2d.collider.GetComponent<SwipableObject>();
+            }
+            else if (Physics.Raycast(ray, out hit))
+            {
+                swipable = hit.collider.GetComponent<SwipableObject>();
+            }
         }
         m_CapturedTouch = touchIndex;
     }
+
     void Reset()
     {
         if (spawnOnTouch)
@@ -167,6 +187,7 @@ public class TouchAxisCtrl : MonoBehaviour
         node.position = transform.position;
         m_Axis = Vector2.zero;
         swipeRegistered = false;
+        swipable = null;
     }
     public Vector2 GetAxis()
     {
