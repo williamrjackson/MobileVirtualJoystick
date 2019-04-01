@@ -4,4 +4,5 @@
 Features:    
 Spawn on Touch    
 Fixed position    
+Swipeable Objects    
 Chase (as used in https://github.com/williamrjackson/FlyRusher)
