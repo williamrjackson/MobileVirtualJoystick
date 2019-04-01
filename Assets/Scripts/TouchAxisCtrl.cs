@@ -20,8 +20,12 @@ public class TouchAxisCtrl : MonoBehaviour
     Vector2 m_Axis;
     Vector3 m_InitialScale;
     Vector2 velRef = Vector2.zero;
+    private bool locked;
     private bool swipeRegistered;
     private SwipableObject swipable = null;
+
+
+    private static List<TouchAxisCtrl> touchControllerList;
 
     // Use this for initialization
     void Start()
@@ -32,8 +36,22 @@ public class TouchAxisCtrl : MonoBehaviour
         }
         node.position = transform.position;
         m_InitialScale = transform.localScale;
-        
+
         Reset();
+    }
+
+    void OnEnable()
+    {
+        if (touchControllerList == null)
+        {
+            touchControllerList = new List<TouchAxisCtrl>();
+        }
+        touchControllerList.Add(this);
+    }
+
+    void OnDisable()
+    {
+        touchControllerList.Remove(this);
     }
 
     void Update()
@@ -87,6 +105,9 @@ public class TouchAxisCtrl : MonoBehaviour
 
     void HandleValidTouch(Vector2 currentPos)
     {
+        if (locked)
+            return;
+
         if (GetPointDistance(currentPos) > GetScaledParimeter(nodeRange))
         {
             node.position = transform.position + (ToVector3(currentPos) - transform.position).normalized * GetScaledParimeter(nodeRange);
@@ -128,6 +149,9 @@ public class TouchAxisCtrl : MonoBehaviour
 
     void CaptureTouch(int touchIndex, Vector2 touchPos)
     {
+        if (locked)
+            return;
+
         if (spawnOnTouch)
         {
             transform.position = touchPos;
@@ -145,7 +169,27 @@ public class TouchAxisCtrl : MonoBehaviour
                 swipable = hit.collider.GetComponent<SwipableObject>();
             }
         }
+        else
+        {
+            foreach (TouchAxisCtrl touchAxis in touchControllerList)
+            {
+                if (touchAxis.spawnOnTouch && touchAxis != this)
+                {
+                    touchAxis.Lock();
+                }
+            }
+        }
         m_CapturedTouch = touchIndex;
+    }
+
+    protected void Lock()
+    {
+        Reset();
+        locked = true;
+    }
+    protected void Unlock()
+    {
+        locked = false;
     }
 
     void Reset()
@@ -153,6 +197,16 @@ public class TouchAxisCtrl : MonoBehaviour
         if (spawnOnTouch)
         {
             transform.localScale = Vector3.zero;
+        }
+        else
+        {
+            foreach (TouchAxisCtrl touchAxis in touchControllerList)
+            {
+                if (touchAxis.spawnOnTouch && touchAxis != this)
+                {
+                    touchAxis.Unlock();
+                }
+            }
         }
         ZeroNode();
         m_CapturedTouch = -1;
