@@ -59,48 +59,51 @@ public class TouchAxisCtrl : MonoBehaviour
         // Get the mouse position - this is for testing. 
         // If not in the unity editor, get the touch position. Either only care about a touch in the right zone, 
         // or use the spawn option and only care about the first touch.
-#if (UNITY_IOS || UNITY_ANDROID)
-        if (m_CapturedTouch < 0)
+        if(SystemInfo.deviceType == DeviceType.Handheld)
         {
-            for (int i = 0; i < Input.touchCount; ++i)
+            if (m_CapturedTouch < 0)
             {
-                if ((!spawnOnTouch && (Input.GetTouch(i).phase == TouchPhase.Began) && 
-                    (GetPointDistance(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(i).position)) < GetScaledParimeter(touchArea))) 
-                    || (spawnOnTouch && Input.GetTouch(i).phase == TouchPhase.Began))
+                for (int i = 0; i < Input.touchCount; ++i)
                 {
-                    CaptureTouch(i, m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(i).position));
+                    if ((!spawnOnTouch && (Input.GetTouch(i).phase == TouchPhase.Began) && 
+                        (GetPointDistance(Camera.main.ScreenToWorldPoint(Input.GetTouch(i).position)) < GetScaledParimeter(touchArea))) 
+                        || (spawnOnTouch && Input.GetTouch(i).phase == TouchPhase.Began))
+                    {
+                        CaptureTouch(i, Camera.main.ScreenToWorldPoint(Input.GetTouch(i).position));
+                    }
+                }
+            }
+            else
+            {
+                if (Input.GetTouch(m_CapturedTouch).phase == TouchPhase.Ended)
+                {
+                    Reset();
+                }
+                else
+                {
+                    HandleValidTouch(Camera.main.ScreenToWorldPoint(Input.GetTouch(m_CapturedTouch).position));
                 }
             }
         }
         else
         {
-            if (Input.GetTouch(m_CapturedTouch).phase == TouchPhase.Ended)
+            if (m_CapturedTouch < 0)
+            {
+                if ((!spawnOnTouch && Input.GetMouseButtonDown(0) && GetPointDistance(Input.mousePosition) < GetScaledParimeter(touchArea))
+                    || (spawnOnTouch && Input.GetMouseButtonDown(0)))
+                {
+                    CaptureTouch(0, Input.mousePosition);
+                }
+            }
+            else if (Input.GetMouseButtonUp(0))
             {
                 Reset();
             }
             else
             {
-                HandleValidTouch(m_JoyCamera.ScreenToWorldPoint(Input.GetTouch(m_CapturedTouch).position));
+                HandleValidTouch(Input.mousePosition);
             }
         }
-#else
-        if (m_CapturedTouch < 0)
-        {
-            if ((!spawnOnTouch && Input.GetMouseButtonDown(0) && GetPointDistance(Input.mousePosition) < GetScaledParimeter(touchArea))
-                || (spawnOnTouch && Input.GetMouseButtonDown(0)))
-            {
-                CaptureTouch(0, Input.mousePosition);
-            }
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            Reset();
-        }
-        else
-        {
-            HandleValidTouch(Input.mousePosition);
-        }
-#endif 
     }
 
     void HandleValidTouch(Vector2 currentPos)

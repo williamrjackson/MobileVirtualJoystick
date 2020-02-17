@@ -6,18 +6,18 @@ public class TouchAxisSwipable : MonoBehaviour
 {
     public void MoveUp()
     {
-        transform.position += transform.up;
+        transform.position += Vector3.up;
     }
     public void MoveDown()
     {
-        transform.position -= transform.up;
+        transform.position -= Vector3.up;
     }
     public void MoveRight()
     {
-        transform.position += transform.right;
+        transform.position += Vector3.right;
     }
     public void MoveLeft()
     {
-        transform.position -= transform.right;
+        transform.position -= Vector3.right;
     }
 }
