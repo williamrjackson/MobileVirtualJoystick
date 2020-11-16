@@ -24,8 +24,8 @@ public class ShipMovement : MonoBehaviour
     {
         if (touchAxisControl.IsTouching())
         {
-            m_TargetXY = new Vector3(Mathf.Clamp(ship.localPosition.x + touchAxisControl.GetAxis("Horizontal"), -xRange, xRange),
-                                     Mathf.Clamp(ship.localPosition.y + touchAxisControl.GetAxis("Vertical"), -yRange, yRange));
+            m_TargetXY = new Vector3(Mathf.Clamp(ship.localPosition.x + touchAxisControl.GetAxis(TouchAxisCtrl.AxisType.Horizontal), -xRange, xRange),
+                                     Mathf.Clamp(ship.localPosition.y + touchAxisControl.GetAxis(TouchAxisCtrl.AxisType.Vertical), -yRange, yRange));
         }
         Vector2 lerpPos = Vector2.Lerp(new Vector2(ship.localPosition.x, ship.localPosition.y), m_TargetXY, snapSpeed);
         ship.localEulerAngles = new Vector3(Remap(ship.localPosition.y - m_TargetXY.y, -1, 1, -Mathf.Abs(pitchAndRollRange.x), Mathf.Abs(pitchAndRollRange.x)),

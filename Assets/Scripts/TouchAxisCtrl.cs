@@ -56,8 +56,7 @@ public class TouchAxisCtrl : MonoBehaviour
 
     void Update()
     {
-        // Get the mouse position - this is for testing. 
-        // If not in the unity editor, get the touch position. Either only care about a touch in the right zone, 
+        // Either only care about a touch in the right zone, 
         // or use the spawn option and only care about the first touch.
         if(SystemInfo.deviceType == DeviceType.Handheld)
         {
@@ -246,23 +245,42 @@ public class TouchAxisCtrl : MonoBehaviour
         swipeRegistered = false;
         swipable = null;
     }
-    public Vector2 GetAxis()
+    public Vector2 Axis
     {
-        return m_Axis;
+        get
+        {
+            return m_Axis;
+        }
     }
-    public float GetAxis(string vertOrHorizontal)
+    public float GetAxis(AxisType axisType)
     {
-        if (vertOrHorizontal == "Horizontal")
+        if (axisType ==AxisType.Horizontal)
             return m_Axis.x;
-        else if (vertOrHorizontal == "Vertical")
+        else if (axisType ==AxisType.Vertical)
             return m_Axis.y;
-        else if (vertOrHorizontal == "InverseHorizontal")
+        else if (axisType ==AxisType.InverseHorizontal)
             return Remap(m_Axis.x, -1, 1, 1, -1);
-        else if (vertOrHorizontal == "InverseVertical")
+        else if (axisType ==AxisType.InverseVertical)
             return Remap(m_Axis.y, -1, 1, 1, -1);
         else
             return 0f;
     }
+    public float Angle
+    {
+        get
+        {
+            if (m_Axis.x < 0)
+            {
+                return 360 - (Mathf.Atan2(m_Axis.x, m_Axis.y) * Mathf.Rad2Deg * -1);
+            }
+            else
+            {
+                return Mathf.Atan2(m_Axis.x, m_Axis.y) * Mathf.Rad2Deg;
+            }
+        }
+    }
+
+    public enum AxisType { Horizontal, Vertical, InverseHorizontal, InverseVertical }
 
     // __ EDITOR GIZMOS __ //
     void OnDrawGizmosSelected()

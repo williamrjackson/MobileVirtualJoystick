@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Events;
 using UnityEngine;
 
 public class TouchAxisGlobalSwipe : MonoBehaviour
 {
     [SerializeField]
     TouchAxisCtrl swipe = null;
-    // Start is called before the first frame update
+    public UnityEvent OnSwipeUp;
+    public UnityEvent OnSwipeDown;
+    public UnityEvent OnSwipeLeft;
+    public UnityEvent OnSwipeRight;
+
     void Start()
     {
         swipe.OnSwipe += OnSwipe;
@@ -18,16 +23,28 @@ public class TouchAxisGlobalSwipe : MonoBehaviour
         switch (direction)
         {
             case TouchAxisCtrl.Direction.Up:
-                transform.position += transform.up;
+                if (OnSwipeUp != null)
+                {
+                    OnSwipeUp.Invoke();
+                }
                 break;
             case TouchAxisCtrl.Direction.Down:
-                transform.position -= transform.up;
+                if (OnSwipeDown != null)
+                {
+                    OnSwipeDown.Invoke();
+                }
                 break;
             case TouchAxisCtrl.Direction.Right:
-                transform.position += transform.right;
+                if (OnSwipeRight != null)
+                {
+                    OnSwipeRight.Invoke();
+                }
                 break;
             default:
-                transform.position -= transform.right;
+                if (OnSwipeLeft != null)
+                {
+                    OnSwipeLeft.Invoke();
+                }
                 break;
         }
     }
